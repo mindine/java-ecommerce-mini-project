@@ -3,6 +3,7 @@ import com.ecommerce.Product;
 import com.ecommerce.db.Db;
 import com.ecommerce.db.DbConfig;
 import com.ecommerce.db.dao.OrderDao;
+import com.ecommerce.db.dao.ProductDao;
 import com.ecommerce.orders.Order;
 import com.ecommerce.storage.SavedSession;
 import com.ecommerce.storage.SavedSessions;
@@ -21,7 +22,13 @@ public class Main {
 
         Customer customer = createCustomer();
 
-        List<Product> catalog = buildCatalog();
+        List<Product> catalog;
+        try {
+            catalog = new ProductDao().getAllProducts();
+        } catch (SQLException e) {
+            System.out.println("Failed to load products from PostgreSQL: " + e.getMessage());
+            return;
+        }
         System.out.println("\nHello, " + customer.getName() + "! Browse our products:\n");
         displayCatalog(catalog);
 
@@ -42,20 +49,20 @@ public class Main {
         }
     }
 
-    private static List<Product> buildCatalog() {
-        List<Product> catalog = new ArrayList<>();
-        catalog.add(new Product("ePID-1", "Laptop", 1000));
-        catalog.add(new Product("ePID-2", "Smartphone", 800));
-        catalog.add(new Product("ePID-3", "Headphones", 150));
-        catalog.add(new Product("ePID-4", "Camera", 500));
-        catalog.add(new Product("ePID-5", "Smartwatch", 200));
-        catalog.add(new Product("ePID-6", "Tablet", 300));
-        catalog.add(new Product("ePID-7", "Gaming Console", 400));
-        catalog.add(new Product("ePID-8", "Bluetooth Speaker", 100));
-        catalog.add(new Product("ePID-9", "External Hard Drive", 120));
-        catalog.add(new Product("ePID-10", "Wireless Charger", 50));
-        return catalog;
-    }
+//    private static List<Product> buildCatalog() {
+//        List<Product> catalog = new ArrayList<>();
+//        catalog.add(new Product("ePID-1", "Laptop", 1000));
+//        catalog.add(new Product("ePID-2", "Smartphone", 800));
+//        catalog.add(new Product("ePID-3", "Headphones", 150));
+//        catalog.add(new Product("ePID-4", "Camera", 500));
+//        catalog.add(new Product("ePID-5", "Smartwatch", 200));
+//        catalog.add(new Product("ePID-6", "Tablet", 300));
+//        catalog.add(new Product("ePID-7", "Gaming Console", 400));
+//        catalog.add(new Product("ePID-8", "Bluetooth Speaker", 100));
+//        catalog.add(new Product("ePID-9", "External Hard Drive", 120));
+//        catalog.add(new Product("ePID-10", "Wireless Charger", 50));
+//        return catalog;
+//    }
 
     private static void displayCatalog(List<Product> catalog) {
         for (Product p : catalog) {
@@ -92,10 +99,16 @@ public class Main {
                     case 3 -> viewCart(customer);
                     case 4 -> placeOrderFlow(customer);
                     case 5 -> {
-                        SavedSessions.viewAllSessions();
+//                        SavedSessions.viewAllSessions();
                         var orders = new OrderDao().printAllOrders();
-                        for (Order o : orders) {
-                            System.out.println(o.toString());
+                        if (orders.isEmpty()) {
+                            System.out.println("There are no orders in the database.");
+                        }
+                        else {
+                            for (Order o : orders) {
+                                System.out.println();
+                                System.out.println(o.generateSummary());
+                            }
                         }
                     }
                     case 6 -> deleteSessionFlow();

@@ -51,10 +51,10 @@ public class Order {
 
     public String generateSummary() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Order Summary\n");
+        sb.append("Order Summary for --> ");
+        sb.append("Customer: ").append(customer.getName()).append(" (").append(customer.getCustomerID()).append(")\n");
         sb.append("-----------------------------------------------------\n");
         sb.append("Order ID: ").append(orderID).append("\n");
-        sb.append("Customer: ").append(customer.getName()).append(" (").append(customer.getCustomerID()).append(")\n");
         sb.append("Status: ").append(status).append("\n");
         sb.append("-----------------------------------------------------\n");
 
