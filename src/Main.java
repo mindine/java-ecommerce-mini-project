@@ -4,10 +4,12 @@ import com.ecommerce.db.Db;
 import com.ecommerce.db.DbConfig;
 import com.ecommerce.db.dao.OrderDao;
 import com.ecommerce.db.dao.ProductDao;
+import com.ecommerce.files.ReceiptWriter;
 import com.ecommerce.orders.Order;
 import com.ecommerce.storage.SavedSession;
 import com.ecommerce.storage.SavedSessions;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -166,7 +168,7 @@ public class Main {
         System.out.println("Total: $" + String.format("%.2f", customer.calculateCartTotal()));
     }
 
-    private static void placeOrderFlow(Customer customer) throws SQLException {
+    private static void placeOrderFlow(Customer customer) throws SQLException, IOException {
         if (customer.getCart().isEmpty()) {
             System.out.println("Cart is empty. Add items first.");
             return;
@@ -181,8 +183,11 @@ public class Main {
         // postgres database implementation
         new OrderDao().saveOrder(order);
 
-        System.out.println(order.generateSummary());
+        System.out.println("\n" + order.generateSummary());
         System.out.println("Order placed and session saved successfully.");
+
+        ReceiptWriter.writeReceipt(order);
+        System.out.println("Receipt saved successfully.");
 
         customer.getCart().clear();
     }

@@ -3,8 +3,11 @@ package com.ecommerce.orders;
 import com.ecommerce.Customer;
 import com.ecommerce.Product;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Order {
@@ -50,6 +53,7 @@ public class Order {
     }
 
     public String generateSummary() {
+        String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
         StringBuilder sb = new StringBuilder();
         sb.append("Order Summary for --> ");
         sb.append("Customer: ").append(customer.getName()).append(" (").append(customer.getCustomerID()).append(")\n");
@@ -69,6 +73,10 @@ public class Order {
 
         sb.append("-----------------------------------------------------\n");
         sb.append("TOTAL: $").append(String.format("%.2f", orderTotal)).append("\n");
+
+        sb.append("-----------------------------------------------------\n");
+        sb.append(dateTime).append("\n");
+
         return sb.toString();
     }
 }
