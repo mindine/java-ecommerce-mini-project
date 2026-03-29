@@ -4,3 +4,6 @@ eOID-TAT-135,eCID-5996,Tatoo,Smartwatch:26:ePID-5:200.0|Tablet:40:ePID-6:300.0,1
 eOID-NYA-6132,eCID-6247,Nyambi,Wireless Charger:20:ePID-10:50.0|Tablet:4:ePID-6:300.0,2200.0
 eOID-MIN-6709,eCID-3842,MinTatoo,Laptop:10:ePID-1:1000.0|Smartphone:20:ePID-2:800.0|Headphones:30:ePID-3:150.0|Camera:40:ePID-4:500.0,50500.0
 eOID-MIN-7990,eCID-2233,MinTatoo,Laptop:10:ePID-1:1000.0|Smartphone:20:ePID-2:800.0|Headphones:30:ePID-3:150.0,30500.0
+eOID-TAT-3559,eCID-1834,tatoo Mindine,Camera:40:ePID-4:500.0|Smartwatch:48:ePID-5:200.0|Tablet:60:ePID-6:300.0,47600.0
+eOID-MIN-4690,eCID-8326,Mindine Nyambi,Gaming Console:70:ePID-7:400.0|Bluetooth Speaker:80:ePID-8:100.0|External Hard Drive:90:ePID-9:120.0|Wireless Charger:10:ePID-10:50.0,47300.0
+eOID-MIN-6950,eCID-7198,Mindine,Game Laptop:10:ePID-1:1000.0|Smartphone:20:ePID-2:800.0,26000.0
