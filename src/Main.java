@@ -5,9 +5,12 @@ import com.ecommerce.db.DbConfig;
 import com.ecommerce.db.dao.OrderDao;
 import com.ecommerce.db.dao.ProductDao;
 import com.ecommerce.files.ReceiptWriter;
+import com.ecommerce.network.OrderNotificationServer;
 import com.ecommerce.orders.Order;
 import com.ecommerce.storage.SavedSession;
 import com.ecommerce.storage.SavedSessions;
+import com.ecommerce.network.OrderNotificationClient;
+import com.ecommerce.util.ReportPrinter;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,7 +21,8 @@ import java.util.Scanner;
 public class Main {
     private static final Scanner SCANNER = new Scanner(System.in);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
         System.out.println("WELCOME TO OUR E-COMMERCE PLATFORM");
         System.out.println("=================================");
 
@@ -32,7 +36,9 @@ public class Main {
             return;
         }
         System.out.println("\nHello, " + customer.getName() + "! Browse our products:\n");
-        displayCatalog(catalog);
+        new ReportPrinter<Product>().printList("PRODUCT CATALOG", catalog);
+//        displayCatalog(catalog);
+        System.out.println("\n");
 
         runShopping(customer, catalog);
     }
@@ -66,13 +72,24 @@ public class Main {
 //        return catalog;
 //    }
 
-    private static void displayCatalog(List<Product> catalog) {
-        for (Product p : catalog) {
-            System.out.println(p);
-        }
-    }
+//    private static void displayCatalog(List<Product> catalog) {
+//        for (Product p : catalog) {
+//            System.out.println(p);
+//        }
+//    }
 
     private static void runShopping(Customer customer, List<Product> catalog) {
+
+        OrderNotificationServer server = new OrderNotificationServer();
+        Thread serverThread = new Thread(server);
+
+        serverThread.start();
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
         while (true) {
             System.out.println("\nMENU");
             System.out.println("1) Add product to cart");
@@ -107,15 +124,30 @@ public class Main {
                             System.out.println("There are no orders in the database.");
                         }
                         else {
-                            for (Order o : orders) {
-                                System.out.println();
-                                System.out.println(o.generateSummary());
-                            }
+                            ReportPrinter<String> printer = new ReportPrinter<>();
+                            List<String> summaries = orders.stream()
+                                    .map(Order::generateSummary)
+                                    .toList();
+
+                            printer.printList("ORDER HISTORY", summaries);
+//                            for (Order o : orders) {
+//                                System.out.println();
+//                                System.out.println(o.generateSummary());
+//                            }
                         }
                     }
                     case 6 -> deleteSessionFlow();
                     case 7 -> clearSessionsFlow();
                     case 8 -> {
+                        System.out.println("Shutting down server...");
+                        server.stopServer();
+
+                        try {
+                            serverThread.join(); // wait for clean shutdown
+                        } catch (InterruptedException e) {
+                            System.out.println("Error shutting server Thread.");
+                        }
+
                         System.out.println("Goodbye!");
                         return;
                     }
@@ -186,8 +218,18 @@ public class Main {
         System.out.println("\n" + order.generateSummary());
         System.out.println("Order placed and session saved successfully.");
 
+        // create receipt
         ReceiptWriter.writeReceipt(order);
         System.out.println("Receipt saved successfully.");
+
+        // generate notification for server
+        try {
+            OrderNotificationClient.sendOrderNotification(order);
+            System.out.println("Order notification sent successfully.");
+            Thread.sleep(500);
+        } catch (InterruptedException | IllegalAccessException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
 
         customer.getCart().clear();
     }
