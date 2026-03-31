@@ -1,14 +1,12 @@
 import com.ecommerce.Customer;
 import com.ecommerce.Product;
 import com.ecommerce.db.dao.OrderDao;
-import com.ecommerce.db.dao.ProductDao;
-import com.ecommerce.files.ReceiptWriter;
 import com.ecommerce.network.OrderNotificationServer;
 import com.ecommerce.orders.Order;
-import com.ecommerce.network.OrderNotificationClient;
+import com.ecommerce.service.CatalogService;
 import com.ecommerce.util.ReportPrinter;
+import com.ecommerce.service.OrderService;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
@@ -25,7 +23,7 @@ public class Main {
 
         List<Product> catalog;
         try {
-            catalog = new ProductDao().getAllProducts();
+            catalog = new CatalogService().loadCatalog();
         } catch (SQLException e) {
             System.out.println("Failed to load products from PostgreSQL: " + e.getMessage());
             return;
@@ -159,33 +157,21 @@ public class Main {
         System.out.println("Total: $" + String.format("%.2f", customer.calculateCartTotal()));
     }
 
-    private static void placeOrderFlow(Customer customer) throws SQLException, IOException {
-        if (customer.getCart().isEmpty()) {
-            System.out.println("Cart is empty. Add items first.");
-            return;
-        }
-
-        Order order = customer.placeOrder();
-
-        new OrderDao().saveOrder(order);
-
-        System.out.println("\n" + order.generateSummary());
-        System.out.println("Order placed and session saved successfully.");
-
-        // create receipt
-        ReceiptWriter.writeReceipt(order);
-        System.out.println("Receipt saved successfully.");
-
-        // generate notification for server
+    private static void placeOrderFlow(Customer customer) throws SQLException {
         try {
-            OrderNotificationClient.sendOrderNotification(order);
+            Order order = new OrderService().checkout(customer);
+
+            System.out.println("\n" + order.generateSummary());
+            System.out.println("Order placed and session saved successfully.");
+            System.out.println("Receipt saved successfully.");
             System.out.println("Order notification sent successfully.");
             Thread.sleep(500);
-        } catch (InterruptedException | IllegalAccessException e) {
+        } catch (IllegalStateException
+                | IllegalArgumentException
+                | InterruptedException
+                | IllegalAccessException e) {
             System.out.println("Error: " + e.getMessage());
         }
-
-        customer.getCart().clear();
     }
 
     private static void deleteSessionFlow() throws SQLException {
