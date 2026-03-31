@@ -1,12 +1,13 @@
 import com.ecommerce.Customer;
 import com.ecommerce.Product;
-import com.ecommerce.db.dao.OrderDao;
 import com.ecommerce.network.OrderNotificationServer;
 import com.ecommerce.orders.Order;
 import com.ecommerce.service.CatalogService;
+import com.ecommerce.service.OrderHistoryService;
 import com.ecommerce.util.ReportPrinter;
 import com.ecommerce.service.OrderService;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Scanner;
@@ -89,7 +90,7 @@ public class Main {
                     case 3 -> viewCart(customer);
                     case 4 -> placeOrderFlow(customer);
                     case 5 -> {
-                        var orders = new OrderDao().printAllOrders();
+                        var orders = new OrderHistoryService().getAllOrders();
                         if (orders.isEmpty()) {
                             System.out.println("There are no orders in the database.");
                         }
@@ -157,7 +158,7 @@ public class Main {
         System.out.println("Total: $" + String.format("%.2f", customer.calculateCartTotal()));
     }
 
-    private static void placeOrderFlow(Customer customer) throws SQLException {
+    private static void placeOrderFlow(Customer customer) throws SQLException, IOException {
         try {
             Order order = new OrderService().checkout(customer);
 
@@ -183,7 +184,7 @@ public class Main {
             return;
         }
 
-        boolean sqlDelete = new OrderDao().deleteOrderById(orderId);
+        boolean sqlDelete = new OrderHistoryService().deleteOrder(orderId);
         if (sqlDelete) System.out.println("Session deleted PostgreSQL successfully.");
         else System.out.println("Order ID not found. Nothing to Delete.");
     }
@@ -198,7 +199,7 @@ public class Main {
         }
 
         if (ans.equalsIgnoreCase("yes")) {
-            new OrderDao().clearAllOrders();
+            new OrderHistoryService().clearAllOrders();
             System.out.println("All sessions cleared.");
         } else {
             System.out.println("Cancelled.");
