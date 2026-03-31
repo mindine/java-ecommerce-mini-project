@@ -16,7 +16,7 @@ public class Order {
     private final Customer customer;
     private final Map<Product, Integer> items; // snapshot
     private final double orderTotal;
-    private Status status;
+    final private Status status;
 
     public Order(String orderID, Customer customer, Map<Product, Integer> items, double orderTotal) {
         if (orderID == null || orderID.isBlank()) throw new IllegalArgumentException("orderID is required");
@@ -70,6 +70,7 @@ public class Order {
 
         sb.append("-----------------------------------------------------\n");
         sb.append(dateTime).append("\n");
+        sb.append("=====================================================\n");
 
         return sb.toString();
     }
