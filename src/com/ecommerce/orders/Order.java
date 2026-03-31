@@ -36,11 +36,6 @@ public class Order {
     public double getOrderTotal() { return orderTotal; }
     public Status getStatus() { return status; }
 
-    public void updateStatus(Status newStatus) {
-        if (newStatus == null) throw new IllegalArgumentException("Status cannot be null");
-        this.status = newStatus;
-    }
-
     @Override
     public String toString() {
         return "Order : " +
