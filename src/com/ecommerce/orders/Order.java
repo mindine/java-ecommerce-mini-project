@@ -3,6 +3,8 @@ package com.ecommerce.orders;
 import com.ecommerce.Customer;
 import com.ecommerce.Product;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -14,7 +16,7 @@ public class Order {
     private final Customer customer;
     private final Map<Product, Integer> items; // snapshot
     private final double orderTotal;
-    private Status status;
+    final private Status status;
 
     public Order(String orderID, Customer customer, Map<Product, Integer> items, double orderTotal) {
         if (orderID == null || orderID.isBlank()) throw new IllegalArgumentException("orderID is required");
@@ -34,11 +36,6 @@ public class Order {
     public double getOrderTotal() { return orderTotal; }
     public Status getStatus() { return status; }
 
-    public void updateStatus(Status newStatus) {
-        if (newStatus == null) throw new IllegalArgumentException("Status cannot be null");
-        this.status = newStatus;
-    }
-
     @Override
     public String toString() {
         return "Order : " +
@@ -50,11 +47,12 @@ public class Order {
     }
 
     public String generateSummary() {
+        String dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
         StringBuilder sb = new StringBuilder();
-        sb.append("Order Summary\n");
+        sb.append("Order Summary for --> ");
+        sb.append("Customer: ").append(customer.getName()).append(" (").append(customer.getCustomerID()).append(")\n");
         sb.append("-----------------------------------------------------\n");
         sb.append("Order ID: ").append(orderID).append("\n");
-        sb.append("Customer: ").append(customer.getName()).append(" (").append(customer.getCustomerID()).append(")\n");
         sb.append("Status: ").append(status).append("\n");
         sb.append("-----------------------------------------------------\n");
 
@@ -69,6 +67,11 @@ public class Order {
 
         sb.append("-----------------------------------------------------\n");
         sb.append("TOTAL: $").append(String.format("%.2f", orderTotal)).append("\n");
+
+        sb.append("-----------------------------------------------------\n");
+        sb.append(dateTime).append("\n");
+        sb.append("=====================================================\n");
+
         return sb.toString();
     }
 }

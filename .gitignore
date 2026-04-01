@@ -41,3 +41,7 @@ build/
 
 # OS
 Thumbs.db
+
+# .csv and .txt files
+*.csv
+*.txt
