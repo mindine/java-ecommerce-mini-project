@@ -179,7 +179,7 @@ public class EcommerceApp extends Application {
                 if (empty || p == null) {
                     setText(null);
                 } else {
-                    setText(p.productID() + " _ " + p.name() + " ($" + p.price() + ")");
+                    setText(String.format("%s | %s ($%.2f)", p.productID(), p.name(), p.price()));
                 }
             }
         });
@@ -317,12 +317,6 @@ public class EcommerceApp extends Application {
 
         customer.getCart().forEach((p, qty) -> {
             sb.append(String.format("%-5d x %-20s $%.2f\n", qty, p.name(), p.price()));
-//            sb.append(qty)
-//                    .append(" x ")
-//                    .append(p.name())
-//                    .append(" ($")
-//                    .append(p.price())
-//                    .append(")\n");
         });
 
         sb.append("------------------------------------------\n");
