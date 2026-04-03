@@ -57,6 +57,10 @@ public class Customer {
         return total;
     }
 
+    public void clearCart() {
+        cart.clear();
+    }
+
     public Order placeOrder() {
         if (cart.isEmpty()) throw new IllegalStateException("Cannot place an order with an empty cart");
 
